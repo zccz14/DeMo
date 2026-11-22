@@ -1,0 +1,21 @@
+{
+  "label": "free-emul-ttft120",
+  "url": "https://demo-node.zccz14.workers.dev/v1/responses?ttft=120&interval=1&tokens=2",
+  "started_at": "2026-11-22T12:03:47.085Z",
+  "headers_ms": 1419,
+  "first_byte_ms": 121418,
+  "duration_ms": 122416,
+  "chunks": 4,
+  "bytes": 319,
+  "max_gap_ms": 119999,
+  "gaps_over_15s": 1,
+  "tail": "\ndata: {\"type\":\"response.output_text.delta\",\"i\":1,\"delta\":\"tok1 \"}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"usage\":{\"input_tokens\":1000,\"output_tokens\":2,\"total_tokens\":1002}}}\n\ndata: [DONE]\n\n",
+  "saw_done": true,
+  "saw_usage": true,
+  "outcome": "complete",
+  "error": null,
+  "node_ttfb_ms": 51,
+  "upstream_ttft_s": 120,
+  "status": 200,
+  "content_type": "text/event-stream; charset=utf-8"
+}

@@ -149,25 +149,8 @@ export default {
     }
 
 
-    if (url.pathname === "/__probe") {
-      const target = url.searchParams.get("url");
-      if (!target) return json({ error: "missing url" }, 400);
-      const t0 = Date.now();
-      try {
-        const bare = await fetch(target, { redirect: "manual" });
-        const head = (await bare.text()).slice(0, 160);
-        return json({
-          mode: "bare-no-headers",
-          status: bare.status,
-          content_type: bare.headers.get("content-type"),
-          server: bare.headers.get("server"),
-          ms: Date.now() - t0,
-          head,
-        });
-      } catch (err) {
-        return json({ mode: "bare-no-headers", error: String(err), ms: Date.now() - t0 }, 502);
-      }
-    }
+
+
 
     if (url.pathname === "/manifest") return manifest(env);
 
