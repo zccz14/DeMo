@@ -1,0 +1,21 @@
+{
+  "label": "long-stream-20min",
+  "url": "https://demo-node.zccz14.workers.dev/v1/responses?ttft=5&interval=5&tokens=240",
+  "started_at": "2026-11-22T10:56:22.526Z",
+  "headers_ms": 1382,
+  "first_byte_ms": 6377,
+  "duration_ms": 1201382,
+  "chunks": 341,
+  "bytes": 17005,
+  "max_gap_ms": 5512,
+  "gaps_over_15s": 0,
+  "tail": " {\"type\":\"response.output_text.delta\",\"i\":239,\"delta\":\"tok239 \"}\n\ndata: {\"type\":\"response.completed\",\"response\":{\"usage\":{\"input_tokens\":1000,\"output_tokens\":240,\"total_tokens\":1240}}}\n\ndata: [DONE]\n\n",
+  "saw_done": true,
+  "saw_usage": true,
+  "outcome": "complete",
+  "error": null,
+  "node_ttfb_ms": 12,
+  "upstream_ttft_s": 5,
+  "status": 200,
+  "content_type": "text/event-stream; charset=utf-8"
+}

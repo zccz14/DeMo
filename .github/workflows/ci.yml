@@ -1,0 +1,18 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # pnpm 的构建脚本白名单在 CI 上会因 ERR_PNPM_IGNORED_BUILDS 中断，
+      # 而 typecheck 只需要 typescript 与 workers-types，所以这里用 npm + --ignore-scripts。
+      - run: npm install --no-audit --no-fund --ignore-scripts
+      - run: npx tsc -p upstream/tsconfig.json
+      - run: npx tsc -p node/tsconfig.json
