@@ -163,17 +163,20 @@ export default {
 <form method="post" action="/setup">
   <label>节点名</label><input name="name" value="${cfg?.name ?? "demo-node"}" required>
   <label>上游 base_url（OpenAI 兼容）</label><input name="base_url" value="${cfg?.base_url ?? "https://demo-upstream.zccz14.workers.dev"}" required>
-  <label>上游 API key</label><input name="api_key" value="${cfg?.api_key ?? ""}" placeholder="sk-...">
+  <label>上游 API key</label><input name="api_key" value="" autocomplete="off" placeholder="${cfg?.api_key ? "已配置，留空表示不修改" : "sk-..."}">
   <label>报价 USD / 1M tokens</label><input name="price_per_mtok_usd" value="${cfg?.price_per_mtok_usd ?? 0}" type="number" step="0.01">
   <button type="submit">保存</button>
 </form>
 <p class="muted">保存后 <a href="/manifest">/manifest</a> 会给出用该节点 Ed25519 私钥签名的声明。</p>`);
       }
       const form = await req.formData();
+      const previous = await loadConfig(env);
+      const submittedKey = String(form.get("api_key") ?? "").trim();
       const cfg: NodeConfig = {
         name: String(form.get("name") ?? "demo-node"),
         base_url: String(form.get("base_url") ?? ""),
-        api_key: String(form.get("api_key") ?? ""),
+        // 留空表示沿用已有 key：key 只进本 Worker 的 KV，不回显、不出现在 HTML 里。
+        api_key: submittedKey || previous?.api_key || "",
         price_per_mtok_usd: Number(form.get("price_per_mtok_usd") ?? 0),
         created_at: new Date().toISOString(),
       };
