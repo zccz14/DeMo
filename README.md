@@ -38,3 +38,5 @@ pnpm deploy:node
 - **同账号两个 Worker 不能通过 `*.workers.dev` 互调**，会直接拿到 `error code: 1042`。
   本实验里上游因此挂了自定义域名 `demo-upstream.ntnl.io`。
   DeMo 的真实拓扑是「中心 → 别人账户的节点」，跨 zone，不受这条限制；但如果想在一个账户下代持多个节点，就必须用 Service Bindings 或各自独立域名。
+- **公网节点几分钟内就会被扫描器命中**（`.env`、`.git/config`、`actuator/env` 等），必须假设自己可被扫。
+- **`waitUntil` 只延长约 30 秒**，长流结束后的收据不能挂在它上面。
