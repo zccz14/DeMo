@@ -22,6 +22,24 @@ DeMo 的假设是：**账户就是一对 Ed25519 密钥，节点就是一台自�
 2. 流里不做计量：用量由中心读尾部 `usage` 或事后对账；
 3. 没有数据库、队列、Durable Object：配置与身份密钥都在 KV，账户层是 Ed25519，没有需要每请求查表的东西。
 
+## 消费者鉴权（Ed25519）
+
+节点用自己 KV 里的上游 key 覆盖 `authorization`，所以**必须**校验调用方，否则就是公开免费中转。
+
+```
+x-demo-key:        <消费者 Ed25519 公钥 hex>
+x-demo-timestamp:  <毫秒时间戳>
+x-demo-signature:  <base64( sign("METHOD\n/path?query\ntimestamp") )>
+```
+
+时间戳窗口 ±60s；只签 method + path + timestamp，不签 body（请求体保持零拷贝直通）；
+公钥白名单为空时不做校验（不安全的实验态）。`/setup` 需要 `?token=` 匹配 Worker Secret `SETUP_TOKEN`。
+
+```bash
+node scripts/gen-consumer-key.mjs                  # 生成消费者密钥对
+node scripts/responses-probe.mjs --url <node>/v1/responses --secret <secret_b64> --body '{"model":"…","input":"…","stream":true}'
+```
+
 ## 部署
 
 ```bash

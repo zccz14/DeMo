@@ -92,3 +92,49 @@
 一个节点同时挂 25 条长连接，CPU 合计 41ms、没有任何一条被 CPU 上限掐断。
 在 Free 的 10ms/调用口径下，这个并发规模不是瓶颈；瓶颈会来自上游侧（同一个 key 的速率与并发）
 与 128MB 每 isolate 的内存，而不是 Workers 的 CPU。
+
+## 八、真实上游（NormAI）+ 真实 API key（2026-11-22 续测）
+
+前七节用的都是假上游。这一节把节点指向 `https://normai.ntnl.io`，用一枚临时真实 key 跑通全链路。
+
+### 通了，而且 `usage` 里直接带钱
+
+经节点的一次真实流式请求（`claude-haiku-5-5`，Responses API）：
+
+- `200`，11,908 字节、40 个 chunk，`max_gap` 99ms，`response.completed` 正常收尾；
+- 尾部 `usage`：`{"cost_usd_nanos":36866,"input_tokens":23,"output_tokens":…}`。
+
+也就是说**"节点不解析流、只由中心读尾部 usage"**这个设计是成立的，而且 NormAI 已经把成本算到
+USD 纳元，收据可以直接用它、不需要节点自己定价。
+
+### 顺带发现一个真漏洞：节点是公开的免费中转
+
+节点会用自己 KV 里的上游 key **覆盖**客户端的 `authorization`，且当时没有任何消费者校验——
+任何人知道 URL 就能拿你的额度发请求（实测：不带任何凭据的请求返回 200）。
+
+修法是 DeMo 的账户模型本身：**消费者用自己的 Ed25519 私钥签名，节点按公钥白名单验签。**
+
+```
+x-demo-key:        <消费者 Ed25519 公钥 hex>
+x-demo-timestamp:  <毫秒时间戳>
+x-demo-signature:  <base64( sign("METHOD\n/path?query\ntimestamp") )>
+```
+
+- 时间戳窗口 ±60s，防重放；
+- 只签 method + path + timestamp，**不签 body**，请求体保持零拷贝直通；
+- 白名单为空时不做校验（明确标注为不安全的实验态）；
+- `/setup` 现在需要 `?token=` 匹配 Worker Secret `SETUP_TOKEN`，否则 401。
+
+实测三条判定：
+
+| 请求 | 结果 |
+|---|---|
+| 不带签名 | `401 missing consumer signature` |
+| 带公钥但签名伪造 | `400 malformed signature` |
+| 真签名 + 真实模型 | `200`，真实输出与 `cost_usd_nanos` |
+
+### 开销观察
+
+节点自身的上游 fetch（`x-demo-node-ttfb-ms`）实测 80–2,074ms，客户端到节点再加约 1s。
+差异主要来自模型自身的首字延迟，样本太少不能据此给"节点开销"下结论；能确定的是
+**节点没有引入固定的秒级惩罚**，之前的 3.35s vs 1.45s 是模型侧波动 + 冷启动混在一起。
