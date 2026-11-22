@@ -1,0 +1,7 @@
+{
+  "name": "demo-node",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true },
+  "kv_namespaces": [{ "binding": "DEMO_KV", "id": "fbb804fd9dd54d5ea399924b7ad48cb2" }]
+}

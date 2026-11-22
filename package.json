@@ -1,0 +1,19 @@
+{
+  "name": "demo-cf-poc",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "typecheck": "tsc -p upstream/tsconfig.json && tsc -p node/tsconfig.json",
+    "deploy:upstream": "wrangler deploy -c upstream/wrangler.jsonc",
+    "deploy:node": "wrangler deploy -c node/wrangler.jsonc"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261121.1",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.166.0"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.3.0",
+    "@noble/hashes": "^1.8.0"
+  }
+}
